@@ -45,9 +45,6 @@ function addToWordArray(word, syllables) {
 	});
 }
 
-// I believe we need to call this function, in order for the correct data to be processed,
-// so the rest of this assignment will work. QUESTION is - does this function run, even 
-// though it's not under exports, if called through haiku_generator??? I think so.
 formatData(cmudictFile);
 
 // So now we know how to put the word and syllable information in objects in an array.
@@ -55,58 +52,34 @@ formatData(cmudictFile);
 // specified as arguments in createHaiku function.
 
 function randomWordSelect(requiredSyllNum) {
-	var matchingWordArr = [];
-	for(var i = 0; i < wordArray.length; i++) {
-		if(wordArray[i].syllables === requiredSyllNum) {
-			matchingWordArr.push(wordArray[i]);
-		}
-	}
-	// This selects a random number that is somewhere between 0 and matchingWordArr.length.
-	// The function then returns the name of that randomly picked object. 
+	var matchingWordArr = wordArray.filter(function(elem) {
+		return elem.syllables <= requiredSyllNum;
+	});
 	var indexNumSelect = Math.floor(Math.random() * matchingWordArr.length);
 	return matchingWordArr[indexNumSelect];
 }
 
-function createHaiku(structure) {  // Ex: [1,2,2,3,2,2,2,3]
+
+function createHaiku(structure) {  
     var haiku = [];
-    var count = 0;
-    for(var i = 0; i < structure.length; i++) {
-    	if(count !== 5 && count !== 12) {
-    		count += structure[i];
-    	} else {
-    		count += structure[i];
-    		haiku.push('\n');
-    	} 
-    	haiku.push(randomWordSelect(structure[i]).word);
-    }
+    var syllCount = []; 
+    for(var i = 0; i < structure.length; i++) {	
+    	if(syllCount[i] === undefined) {
+ 			syllCount[i] = 0;
+ 		}
+ 		for(var j = 0; j < structure[i]; j = syllCount[i]) {
+ 			var wordThisRound = randomWordSelect(structure[i] - syllCount[i]);	
+ 			haiku.push(wordThisRound.word);
+			syllCount[i] += wordThisRound.syllables;	
+    	}
+    	haiku.push('\n'); 
+    }					  
     return haiku.join(' ');
 }
 
-//     var haiku = [];
-//     for(var i = 0; i < structure.length; i++) {
-//     	haiku.push(randomWordSelect(structure[i]));
-//     }
-//     var countRow1 = 0;
-//    	for(var i = 0; i < haiku.length; i++) {
-//    		if(count < 6) {
-//    		count += haiku[i].syllables;
-//    		}
-//    	}
-// }
-
-// function createHaiku(structure, syllabelsArr){
-//   var arrOfWords;
-//   return structure.map(function(lines){
-//     return lines.map(function(syls){
-//       arrOfWords = syllabelsArr[syls];
-//       return arrOfWords[Math.floor(Math.random() * arrOfWords.length)];
-//     }).join(' ');
-//   }).join('\n');
-// }
-
-// // Final action = what we export into haiku_generator.
+// Final action = what we export into haiku_generator.
 module.exports = {
-  createHaiku: createHaiku,
+  createHaiku: createHaiku
 
 };
 
